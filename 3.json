@@ -1,0 +1,1230 @@
+{
+  "name": "High Severity Vulnerabilities",
+  "pinned": false,
+  "createdAt": 1768467221065,
+  "preset": "@local:wazuh-v3",
+  "tokenCount": 4055,
+  "userLastMessagedAt": 1768467234093,
+  "systemPrompt": "",
+  "messages": [
+    {
+      "versions": [
+        {
+          "type": "singleStep",
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "6.\t列出 agent 001 中 vulnerability severity 為 High 的前五個漏洞。"
+            }
+          ]
+        }
+      ],
+      "currentlySelected": 0
+    },
+    {
+      "versions": [
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "steps": [
+            {
+              "type": "contentBlock",
+              "stepIdentifier": "1768467236530-0.6467410628365333",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\n好的，用户需要列出agent 001中严重程度为High的前五个漏洞。首先，我得确定哪个工具能提供这个信息。查看可用的函数，发现有get_wazuh_vulnerability_summary，它可以根据代理ID和严重性级别过滤漏洞，并且可以设置限制数量。\n\n参数方面，用户指定了agent_id是001，severity是High，limit是前五个。所以需要调用这个函数，设置agent_id为\"001\"，severity为\"High\"，limit设为5。这样应该能获取到所需的数据。确认参数是否正确，确保required字段都满足，这里agent_id是必须的，其他如cve和severity是可选的，但用户明确要求High严重性，所以需要包含进去。最后，生成对应的tool_call结构。\n",
+                  "fromDraftModel": false,
+                  "tokensCount": 174,
+                  "isStructural": false
+                }
+              ],
+              "defaultShouldIncludeInContext": true,
+              "shouldIncludeInContext": true,
+              "style": {
+                "type": "thinking",
+                "ended": true,
+                "title": "Thought for 3.40 seconds",
+                "forceRenderAsPlainText": false
+              },
+              "prefix": "<think>",
+              "suffix": "</think>"
+            },
+            {
+              "type": "contentBlock",
+              "stepIdentifier": "1768467239969-0.32846986382741683",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\n\n",
+                  "fromDraftModel": false,
+                  "tokensCount": 1,
+                  "isStructural": false
+                },
+                {
+                  "type": "toolCallRequest",
+                  "callId": 277651728080378,
+                  "toolCallRequestId": "215210620",
+                  "name": "get_wazuh_vulnerability_summary",
+                  "parameters": {
+                    "agent_id": "001",
+                    "severity": "High",
+                    "limit": 5
+                  },
+                  "pluginIdentifier": "mcp/wazuh"
+                }
+              ],
+              "defaultShouldIncludeInContext": true,
+              "shouldIncludeInContext": true,
+              "genInfo": {
+                "indexedModelIdentifier": "qwen/qwen3-8b",
+                "identifier": "qwen/qwen3-8b",
+                "loadModelConfig": {
+                  "fields": [
+                    {
+                      "key": "llm.load.llama.cpuThreadPoolSize",
+                      "value": 4
+                    },
+                    {
+                      "key": "llm.load.contextLength",
+                      "value": 10000
+                    },
+                    {
+                      "key": "llm.load.llama.flashAttention",
+                      "value": true
+                    },
+                    {
+                      "key": "llm.load.llama.acceleration.offloadRatio",
+                      "value": 1
+                    }
+                  ]
+                },
+                "predictionConfig": {
+                  "fields": [
+                    {
+                      "key": "llm.prediction.promptTemplate",
+                      "value": {
+                        "type": "jinja",
+                        "jinjaPromptTemplate": {
+                          "template": "{%- if tools %}\n    {{- '<|im_start|>system\\n' }}\n    {%- if messages[0].role == 'system' %}\n        {{- messages[0].content + '\\n\\n' }}\n    {%- endif %}\n    {{- \"# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\\"name\\\": <function-name>, \\\"arguments\\\": <args-json-object>}\\n</tool_call><|im_end|>\\n\" }}\n{%- else %}\n    {%- if messages[0].role == 'system' %}\n        {{- '<|im_start|>system\\n' + messages[0].content + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- set tool_start = \"<tool_response>\" %}\n    {%- set tool_start_length = tool_start|length %}\n    {%- set start_of_message = message.content[:tool_start_length] %}\n    {%- set tool_end = \"</tool_response>\" %}\n    {%- set tool_end_length = tool_end|length %}\n    {%- set start_pos = (message.content|length) - tool_end_length %}\n    {%- if start_pos < 0 %}\n        {%- set start_pos = 0 %}\n    {%- endif %}\n    {%- set end_of_message = message.content[start_pos:] %}\n    {%- if ns.multi_step_tool and message.role == \"user\" and not(start_of_message == tool_start and end_of_message == tool_end) %}\n        {%- set ns.multi_step_tool = false %}\n        {%- set ns.last_query_index = index %}\n    {%- endif %}\n{%- endfor %}\n{%- for message in messages %}\n    {%- if (message.role == \"user\") or (message.role == \"system\" and not loop.first) %}\n        {{- '<|im_start|>' + message.role + '\\n' + message.content + '<|im_end|>' + '\\n' }}\n    {%- elif message.role == \"assistant\" %}\n        {%- set content = message.content %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is defined and message.reasoning_content is not none %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- else %}\n            {%- if '</think>' in message.content %}\n                {%- set content = (message.content.split('</think>')|last).lstrip('\\n') %}\n        {%- set reasoning_content = (message.content.split('</think>')|first).rstrip('\\n') %}\n        {%- set reasoning_content = (reasoning_content.split('<think>')|last).lstrip('\\n') %}\n            {%- endif %}\n        {%- endif %}\n        {%- if loop.index0 > ns.last_query_index %}\n            {%- if loop.last or (not loop.last and reasoning_content) %}\n                {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content.strip('\\n') + '\\n</think>\\n\\n' + content.lstrip('\\n') }}\n            {%- else %}\n                {{- '<|im_start|>' + message.role + '\\n' + content }}\n            {%- endif %}\n        {%- else %}\n            {{- '<|im_start|>' + message.role + '\\n' + content }}\n        {%- endif %}\n        {%- if message.tool_calls %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if (loop.first and content) or (not loop.first) %}\n                    {{- '\\n' }}\n                {%- endif %}\n                {%- if tool_call.function %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {{- '<tool_call>\\n{\"name\": \"' }}\n                {{- tool_call.name }}\n                {{- '\", \"arguments\": ' }}\n                {%- if tool_call.arguments is string %}\n                    {{- tool_call.arguments }}\n                {%- else %}\n                    {{- tool_call.arguments | tojson }}\n                {%- endif %}\n                {{- '}\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.first or (messages[loop.index0 - 1].role != \"tool\") %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- message.content }}\n        {{- '\\n</tool_response>' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != \"tool\") %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\\n\\n</think>\\n\\n' }}\n    {%- endif %}\n{%- endif %}"
+                        },
+                        "stopStrings": []
+                      }
+                    },
+                    {
+                      "key": "llm.prediction.llama.cpuThreads",
+                      "value": 4
+                    },
+                    {
+                      "key": "llm.prediction.contextPrefill",
+                      "value": []
+                    },
+                    {
+                      "key": "llm.prediction.topKSampling",
+                      "value": 20
+                    },
+                    {
+                      "key": "llm.prediction.minPSampling",
+                      "value": {
+                        "checked": true,
+                        "value": 0
+                      }
+                    },
+                    {
+                      "key": "ext.virtualModel.customField.qwen.qwen38b.enableThinking",
+                      "value": true
+                    },
+                    {
+                      "key": "llm.prediction.temperature",
+                      "value": 0.4
+                    },
+                    {
+                      "key": "llm.prediction.tools",
+                      "value": {
+                        "type": "toolArray",
+                        "tools": [
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_critical_vulnerabilities",
+                              "description": "Retrieves critical vulnerabilities for a specific Wazuh agent. Returns formatted vulnerability information including CVE ID, title, description, CVSS scores, and detection details. Only shows vulnerabilities with 'Critical' severity level.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get critical vulnerabilities for (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of vulnerabilities to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_cluster_nodes",
+                              "description": "Retrieves a list of nodes in the Wazuh cluster. Returns formatted node information including name, type, version, IP, and status. Supports filtering by limit, offset, and node type.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "limit": {
+                                    "description": "Maximum number of nodes to retrieve (optional, Wazuh API default is 500)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "node_type": {
+                                    "description": "Filter by node type (e.g., 'master', 'worker') (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "offset": {
+                                    "description": "Number of nodes to skip (offset) (optional, default: 0)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "search_wazuh_manager_logs",
+                              "description": "Searches Wazuh manager logs. Returns formatted log entries including timestamp, tag, level, and description. Supports filtering by limit, offset, level, tag, and a search term.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "level": {
+                                    "description": "Log level to filter by (e.g., \"error\", \"warning\", \"info\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of log entries to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "offset": {
+                                    "description": "Number of log entries to skip (default: 0)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "search_term": {
+                                    "description": "Search term to filter log descriptions (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tag": {
+                                    "description": "Log tag to filter by (e.g., \"wazuh-modulesd\") (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "level"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_manager_error_logs",
+                              "description": "Retrieves Wazuh manager error logs. Returns formatted log entries including timestamp, tag, level (error), and description.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "limit": {
+                                    "description": "Maximum number of error log entries to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_remoted_stats",
+                              "description": "Retrieves statistics from the Wazuh remoted daemon. Returns information about queue size, TCP sessions, event counts, and message traffic.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_cluster_health",
+                              "description": "Checks the health of the Wazuh cluster. Returns whether the cluster is enabled, running, and if nodes are connected.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_agents",
+                              "description": "Retrieves a list of Wazuh agents with their current status and details. Returns formatted agent information including ID, name, IP, status, OS details, and last activity. Supports filtering by status, name, IP, group, OS platform, and version.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "group": {
+                                    "description": "Agent group to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "ip": {
+                                    "description": "Agent IP address to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of agents to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "name": {
+                                    "description": "Agent name to search for (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "os_platform": {
+                                    "description": "Operating system platform to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "status": {
+                                    "description": "Agent status filter (active, disconnected, pending, never_connected)",
+                                    "type": "string"
+                                  },
+                                  "version": {
+                                    "description": "Agent version to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "status"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_vulnerability_summary",
+                              "description": "Retrieves a summary of Wazuh vulnerability detections for a specific agent. Returns formatted vulnerability information including CVE ID, severity, detection time, and agent details. Supports filtering by severity level.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to filter vulnerabilities by (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  },
+                                  "cve": {
+                                    "description": "CVE ID to search for (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of vulnerabilities to retrieve (default: 10000)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "severity": {
+                                    "description": "Severity level to filter by (Low, Medium, High, Critical) (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_log_collector_stats",
+                              "description": "Retrieves log collector statistics for a specific Wazuh agent. Returns information about events processed, dropped, bytes, and target log files.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get log collector stats for (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_agent_ports",
+                              "description": "Retrieves a list of open network ports for a specific Wazuh agent. Returns formatted port information including local/remote IP and port, protocol, state, and associated process/PID. Supports filtering by protocol and state.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get network ports for (required, e.g., \"001\", \"002\", \"003\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of ports to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "protocol": {
+                                    "description": "Protocol to filter by (e.g., \"tcp\", \"udp\")",
+                                    "type": "string"
+                                  },
+                                  "state": {
+                                    "description": "State to filter by (e.g., \"LISTENING\", \"ESTABLISHED\")",
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "agent_id",
+                                  "protocol",
+                                  "state"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_weekly_stats",
+                              "description": "Retrieves weekly statistics from the Wazuh manager. Returns a JSON object detailing various metrics aggregated over the past week.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_alert_summary",
+                              "description": "Retrieves a summary of Wazuh security alerts. Returns formatted alert information including ID, timestamp, and description.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "limit": {
+                                    "description": "Maximum number of alerts to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_rules_summary",
+                              "description": "Retrieves a summary of Wazuh security rules. Returns formatted rule information including ID, level, description, and groups. Supports filtering by level, group, and filename.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "filename": {
+                                    "description": "Filename to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "group": {
+                                    "description": "Rule group to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "level": {
+                                    "description": "Rule level to filter by (optional)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of rules to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_agent_processes",
+                              "description": "Retrieves a list of running processes for a specific Wazuh agent. Returns formatted process information including PID, name, state, user, and command. Supports filtering by process name/command.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get processes for (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of processes to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "search": {
+                                    "description": "Search string to filter processes by name or command (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "stats": {
+                  "stopReason": "eosFound",
+                  "tokensPerSecond": 49.60314751539199,
+                  "numGpuLayers": -1,
+                  "timeToFirstTokenSec": 1.639,
+                  "totalTimeSec": 4.395,
+                  "promptTokensCount": 2688,
+                  "predictedTokensCount": 218,
+                  "totalTokensCount": 2906
+                }
+              }
+            },
+            {
+              "type": "toolStatus",
+              "stepIdentifier": "1768467240188-0.8982222756060823",
+              "callId": 277651728080378,
+              "statusState": {
+                "status": {
+                  "type": "toolCallSucceeded",
+                  "timeMs": 119
+                },
+                "customStatus": "",
+                "customWarnings": []
+              }
+            },
+            {
+              "type": "contentBlock",
+              "stepIdentifier": "1768467240883-0.4586853610098931",
+              "content": [
+                {
+                  "type": "toolCallResult",
+                  "callId": 277651728080378,
+                  "toolCallRequestId": "215210620",
+                  "name": "get_wazuh_vulnerability_summary",
+                  "content": "[{\"type\":\"text\",\"text\":\"CVE: Unknown\\nSeverity: 🟠 HIGH\\nTitle: No title available\\nDescription: Improper access control in Storvsp.sys Driver allows an authorized attacker to elevate privileges locally.\\nAgent: windows-go (ID: 001)\\nReference: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-64673\"},{\"type\":\"text\",\"text\":\"CVE: Unknown\\nSeverity: 🟠 HIGH\\nTitle: No title available\\nDescription: Concurrent execution using shared resource with improper synchronization ('race condition') in Windows Shell allows an authorized attacker to elevate privileges locally.\\nAgent: windows-go (ID: 001)\\nReference: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-64658\"},{\"type\":\"text\",\"text\":\"CVE: Unknown\\nSeverity: 🟠 HIGH\\nTitle: No title available\\nDescription: Use after free in Windows DirectX allows an authorized attacker to elevate privileges locally.\\nAgent: windows-go (ID: 001)\\nReference: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-62573\"},{\"type\":\"text\",\"text\":\"CVE: Unknown\\nSeverity: 🟠 HIGH\\nTitle: No title available\\nDescription: Improper input validation in Windows Installer allows an authorized attacker to elevate privileges locally.\\nAgent: windows-go (ID: 001)\\nReference: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-62571\"},{\"type\":\"text\",\"text\":\"CVE: Unknown\\nSeverity: 🟠 HIGH\\nTitle: No title available\\nDescription: Improper access control in Windows Remote Access Connection Manager allows an authorized attacker to elevate privileges locally.\\nAgent: windows-go (ID: 001)\\nReference: https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-62474\"}]"
+                }
+              ],
+              "roleOverride": "tool",
+              "defaultShouldIncludeInContext": true,
+              "shouldIncludeInContext": true
+            },
+            {
+              "type": "contentBlock",
+              "stepIdentifier": "1768467241487-0.6685061628504411",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\n好的，用户需要列出agent 001中严重程度为High的前五个漏洞。首先，我得确定哪个工具能提供这个信息。查看可用的函数，发现有get_wazuh_vulnerability_summary，它可以根据代理ID和严重性级别过滤漏洞，并且可以设置限制数量。\n\n参数方面，用户指定了agent_id是001，severity是High，limit是前五个。所以需要调用这个函数，设置agent_id为\"001\"，severity为\"High\"，limit设为5。这样应该能获取到所需的数据。确认参数是否正确，确保required字段都满足，这里agent_id是必须的，其他如cve和severity是可选的，但用户明确要求High严重性，所以需要包含进去。最后，生成对应的tool_call结构。\n",
+                  "fromDraftModel": false,
+                  "tokensCount": 174,
+                  "isStructural": false
+                }
+              ],
+              "defaultShouldIncludeInContext": true,
+              "shouldIncludeInContext": true,
+              "style": {
+                "type": "thinking",
+                "ended": true,
+                "title": "Thought for 3.41 seconds",
+                "forceRenderAsPlainText": false
+              },
+              "prefix": "<think>",
+              "suffix": "</think>"
+            },
+            {
+              "type": "contentBlock",
+              "stepIdentifier": "1768467245019-0.3623871863376048",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\n\n以下是 agent 001 中 severity 为 High 的前五个漏洞：\n\n1. **CVE-2025-64673**  \n   - 严重程度: HIGH  \n   - 标题: 无标题  \n   - 描述: Storvsp.sys 驱动中的不当访问控制允许授权攻击者本地提权。  \n   - 参考链接: [Microsoft 官方文档](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-64673)\n\n2. **CVE-2025-64658**  \n   - 严重程度: HIGH  \n   - 标题: 无标题  \n   - 描述: Windows Shell 中并发执行共享资源时因同步不当导致的“竞态条件”允许授权攻击者本地提权。  \n   - 参考链接: [Microsoft 官方文档](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-64658)\n\n3. **CVE-2025-62573**  \n   - 严重程度: HIGH  \n   - 标题: 无标题  \n   - 描述: Windows DirectX 中的使用后释放漏洞允许授权攻击者本地提权。  \n   - 参考链接: [Microsoft 官方文档](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-62573)\n\n4. **CVE-2025-62571**  \n   - 严重程度: HIGH  \n   - 标题: 无标题  \n   - 描述: Windows Installer 中的输入验证不足允许授权攻击者本地提权。  \n   - 参考链接: [Microsoft 官方文档](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-62571)\n\n5. **CVE-2025-62474**  \n   - 严重程度: HIGH  \n   - 标题: 无标题  \n   - 描述: Windows 远程访问连接管理器中的不当访问控制允许授权攻击者本地提权。  \n   - 参考链接: [Microsoft 官方文档](https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-62474)\n\n**建议**: 立即检查相关系统更新或补丁以修复这些高危漏洞。",
+                  "fromDraftModel": false,
+                  "tokensCount": 510,
+                  "isStructural": false
+                }
+              ],
+              "defaultShouldIncludeInContext": true,
+              "shouldIncludeInContext": true,
+              "genInfo": {
+                "indexedModelIdentifier": "qwen/qwen3-8b",
+                "identifier": "qwen/qwen3-8b",
+                "loadModelConfig": {
+                  "fields": [
+                    {
+                      "key": "llm.load.llama.cpuThreadPoolSize",
+                      "value": 4
+                    },
+                    {
+                      "key": "llm.load.contextLength",
+                      "value": 10000
+                    },
+                    {
+                      "key": "llm.load.llama.flashAttention",
+                      "value": true
+                    },
+                    {
+                      "key": "llm.load.llama.acceleration.offloadRatio",
+                      "value": 1
+                    }
+                  ]
+                },
+                "predictionConfig": {
+                  "fields": [
+                    {
+                      "key": "llm.prediction.promptTemplate",
+                      "value": {
+                        "type": "jinja",
+                        "jinjaPromptTemplate": {
+                          "template": "{%- if tools %}\n    {{- '<|im_start|>system\\n' }}\n    {%- if messages[0].role == 'system' %}\n        {{- messages[0].content + '\\n\\n' }}\n    {%- endif %}\n    {{- \"# Tools\\n\\nYou may call one or more functions to assist with the user query.\\n\\nYou are provided with function signatures within <tools></tools> XML tags:\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\\n\\nFor each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\\n<tool_call>\\n{\\\"name\\\": <function-name>, \\\"arguments\\\": <args-json-object>}\\n</tool_call><|im_end|>\\n\" }}\n{%- else %}\n    {%- if messages[0].role == 'system' %}\n        {{- '<|im_start|>system\\n' + messages[0].content + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- set tool_start = \"<tool_response>\" %}\n    {%- set tool_start_length = tool_start|length %}\n    {%- set start_of_message = message.content[:tool_start_length] %}\n    {%- set tool_end = \"</tool_response>\" %}\n    {%- set tool_end_length = tool_end|length %}\n    {%- set start_pos = (message.content|length) - tool_end_length %}\n    {%- if start_pos < 0 %}\n        {%- set start_pos = 0 %}\n    {%- endif %}\n    {%- set end_of_message = message.content[start_pos:] %}\n    {%- if ns.multi_step_tool and message.role == \"user\" and not(start_of_message == tool_start and end_of_message == tool_end) %}\n        {%- set ns.multi_step_tool = false %}\n        {%- set ns.last_query_index = index %}\n    {%- endif %}\n{%- endfor %}\n{%- for message in messages %}\n    {%- if (message.role == \"user\") or (message.role == \"system\" and not loop.first) %}\n        {{- '<|im_start|>' + message.role + '\\n' + message.content + '<|im_end|>' + '\\n' }}\n    {%- elif message.role == \"assistant\" %}\n        {%- set content = message.content %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is defined and message.reasoning_content is not none %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- else %}\n            {%- if '</think>' in message.content %}\n                {%- set content = (message.content.split('</think>')|last).lstrip('\\n') %}\n        {%- set reasoning_content = (message.content.split('</think>')|first).rstrip('\\n') %}\n        {%- set reasoning_content = (reasoning_content.split('<think>')|last).lstrip('\\n') %}\n            {%- endif %}\n        {%- endif %}\n        {%- if loop.index0 > ns.last_query_index %}\n            {%- if loop.last or (not loop.last and reasoning_content) %}\n                {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content.strip('\\n') + '\\n</think>\\n\\n' + content.lstrip('\\n') }}\n            {%- else %}\n                {{- '<|im_start|>' + message.role + '\\n' + content }}\n            {%- endif %}\n        {%- else %}\n            {{- '<|im_start|>' + message.role + '\\n' + content }}\n        {%- endif %}\n        {%- if message.tool_calls %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if (loop.first and content) or (not loop.first) %}\n                    {{- '\\n' }}\n                {%- endif %}\n                {%- if tool_call.function %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {{- '<tool_call>\\n{\"name\": \"' }}\n                {{- tool_call.name }}\n                {{- '\", \"arguments\": ' }}\n                {%- if tool_call.arguments is string %}\n                    {{- tool_call.arguments }}\n                {%- else %}\n                    {{- tool_call.arguments | tojson }}\n                {%- endif %}\n                {{- '}\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.first or (messages[loop.index0 - 1].role != \"tool\") %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- message.content }}\n        {{- '\\n</tool_response>' }}\n        {%- if loop.last or (messages[loop.index0 + 1].role != \"tool\") %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\\n\\n</think>\\n\\n' }}\n    {%- endif %}\n{%- endif %}"
+                        },
+                        "stopStrings": []
+                      }
+                    },
+                    {
+                      "key": "llm.prediction.llama.cpuThreads",
+                      "value": 4
+                    },
+                    {
+                      "key": "llm.prediction.contextPrefill",
+                      "value": []
+                    },
+                    {
+                      "key": "llm.prediction.topKSampling",
+                      "value": 20
+                    },
+                    {
+                      "key": "llm.prediction.minPSampling",
+                      "value": {
+                        "checked": true,
+                        "value": 0
+                      }
+                    },
+                    {
+                      "key": "ext.virtualModel.customField.qwen.qwen38b.enableThinking",
+                      "value": true
+                    },
+                    {
+                      "key": "llm.prediction.temperature",
+                      "value": 0.4
+                    },
+                    {
+                      "key": "llm.prediction.tools",
+                      "value": {
+                        "type": "toolArray",
+                        "tools": [
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_critical_vulnerabilities",
+                              "description": "Retrieves critical vulnerabilities for a specific Wazuh agent. Returns formatted vulnerability information including CVE ID, title, description, CVSS scores, and detection details. Only shows vulnerabilities with 'Critical' severity level.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get critical vulnerabilities for (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of vulnerabilities to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_cluster_nodes",
+                              "description": "Retrieves a list of nodes in the Wazuh cluster. Returns formatted node information including name, type, version, IP, and status. Supports filtering by limit, offset, and node type.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "limit": {
+                                    "description": "Maximum number of nodes to retrieve (optional, Wazuh API default is 500)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "node_type": {
+                                    "description": "Filter by node type (e.g., 'master', 'worker') (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "offset": {
+                                    "description": "Number of nodes to skip (offset) (optional, default: 0)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "search_wazuh_manager_logs",
+                              "description": "Searches Wazuh manager logs. Returns formatted log entries including timestamp, tag, level, and description. Supports filtering by limit, offset, level, tag, and a search term.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "level": {
+                                    "description": "Log level to filter by (e.g., \"error\", \"warning\", \"info\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of log entries to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "offset": {
+                                    "description": "Number of log entries to skip (default: 0)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "search_term": {
+                                    "description": "Search term to filter log descriptions (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "tag": {
+                                    "description": "Log tag to filter by (e.g., \"wazuh-modulesd\") (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "level"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_manager_error_logs",
+                              "description": "Retrieves Wazuh manager error logs. Returns formatted log entries including timestamp, tag, level (error), and description.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "limit": {
+                                    "description": "Maximum number of error log entries to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_remoted_stats",
+                              "description": "Retrieves statistics from the Wazuh remoted daemon. Returns information about queue size, TCP sessions, event counts, and message traffic.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_cluster_health",
+                              "description": "Checks the health of the Wazuh cluster. Returns whether the cluster is enabled, running, and if nodes are connected.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_agents",
+                              "description": "Retrieves a list of Wazuh agents with their current status and details. Returns formatted agent information including ID, name, IP, status, OS details, and last activity. Supports filtering by status, name, IP, group, OS platform, and version.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "group": {
+                                    "description": "Agent group to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "ip": {
+                                    "description": "Agent IP address to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of agents to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "name": {
+                                    "description": "Agent name to search for (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "os_platform": {
+                                    "description": "Operating system platform to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "status": {
+                                    "description": "Agent status filter (active, disconnected, pending, never_connected)",
+                                    "type": "string"
+                                  },
+                                  "version": {
+                                    "description": "Agent version to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "status"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_vulnerability_summary",
+                              "description": "Retrieves a summary of Wazuh vulnerability detections for a specific agent. Returns formatted vulnerability information including CVE ID, severity, detection time, and agent details. Supports filtering by severity level.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to filter vulnerabilities by (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  },
+                                  "cve": {
+                                    "description": "CVE ID to search for (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of vulnerabilities to retrieve (default: 10000)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "severity": {
+                                    "description": "Severity level to filter by (Low, Medium, High, Critical) (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_log_collector_stats",
+                              "description": "Retrieves log collector statistics for a specific Wazuh agent. Returns information about events processed, dropped, bytes, and target log files.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get log collector stats for (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_agent_ports",
+                              "description": "Retrieves a list of open network ports for a specific Wazuh agent. Returns formatted port information including local/remote IP and port, protocol, state, and associated process/PID. Supports filtering by protocol and state.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get network ports for (required, e.g., \"001\", \"002\", \"003\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of ports to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "protocol": {
+                                    "description": "Protocol to filter by (e.g., \"tcp\", \"udp\")",
+                                    "type": "string"
+                                  },
+                                  "state": {
+                                    "description": "State to filter by (e.g., \"LISTENING\", \"ESTABLISHED\")",
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "agent_id",
+                                  "protocol",
+                                  "state"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_weekly_stats",
+                              "description": "Retrieves weekly statistics from the Wazuh manager. Returns a JSON object detailing various metrics aggregated over the past week.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_alert_summary",
+                              "description": "Retrieves a summary of Wazuh security alerts. Returns formatted alert information including ID, timestamp, and description.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "limit": {
+                                    "description": "Maximum number of alerts to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_rules_summary",
+                              "description": "Retrieves a summary of Wazuh security rules. Returns formatted rule information including ID, level, description, and groups. Supports filtering by level, group, and filename.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "filename": {
+                                    "description": "Filename to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "group": {
+                                    "description": "Rule group to filter by (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "level": {
+                                    "description": "Rule level to filter by (optional)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of rules to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "function",
+                            "function": {
+                              "name": "get_wazuh_agent_processes",
+                              "description": "Retrieves a list of running processes for a specific Wazuh agent. Returns formatted process information including PID, name, state, user, and command. Supports filtering by process name/command.",
+                              "parameters": {
+                                "type": "object",
+                                "properties": {
+                                  "agent_id": {
+                                    "description": "Agent ID to get processes for (required, e.g., \"0\", \"1\", \"001\")",
+                                    "type": "string"
+                                  },
+                                  "limit": {
+                                    "description": "Maximum number of processes to retrieve (default: 300)",
+                                    "format": "uint32",
+                                    "minimum": 0,
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ]
+                                  },
+                                  "search": {
+                                    "description": "Search string to filter processes by name or command (optional)",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "agent_id"
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "stats": {
+                  "stopReason": "eosFound",
+                  "tokensPerSecond": 47.44249884544501,
+                  "numGpuLayers": -1,
+                  "timeToFirstTokenSec": 0.406,
+                  "totalTimeSec": 14.481,
+                  "promptTokensCount": 3344,
+                  "predictedTokensCount": 687,
+                  "totalTokensCount": 4031
+                }
+              }
+            },
+            {
+              "type": "debugInfoBlock",
+              "stepIdentifier": "1768467255824-0.2738142353555879",
+              "debugInfo": "Conversation naming technique: 'prompt'"
+            }
+          ],
+          "senderInfo": {
+            "senderName": "qwen/qwen3-8b"
+          }
+        }
+      ],
+      "currentlySelected": 0
+    }
+  ],
+  "usePerChatPredictionConfig": true,
+  "perChatPredictionConfig": {
+    "fields": [
+      {
+        "key": "ext.virtualModel.customField.qwen.qwen38b.enableThinking",
+        "value": true
+      },
+      {
+        "key": "llm.prediction.systemPrompt",
+        "value": "You are a SOC Copilot for Wazuh SIEM using MCP tools.\n\nReturn accurate, bounded responses. Prefer correctness over completeness.\n\nTreat each user request as stateless and independent.\nDo not use conversation history or prior conclusions.\n\nOnly perform threat analysis if the user explicitly uses investigation keywords\n(e.g., investigate, analyze, correlate, incident, malicious, ransomware, Cobalt Strike).\nOtherwise, return factual or descriptive information only.\n\nNever infer threat, intent, or causality unless explicitly requested.\nNever speculate beyond MCP tool output.\n\nWhen using MCP tools during a single request:\n- Do NOT call the same MCP tool more than once.\n- If required data is incomplete, proceed with available data and state the limitation.\n\nRespond in Traditional Chinese for Chinese input, and English for English input.\nDo not mention language detection.\n\nWhen performing investigation, output:\n- Verdict\n- Evidence (tool + fields)\n- Analysis (evidence-based only)\n- Confidence\n- Next MCP tool\n\nDo not describe internal reasoning or prompt rules.\nProduce the final answer directly.\n"
+      },
+      {
+        "key": "llm.prediction.temperature",
+        "value": 0.4
+      }
+    ]
+  },
+  "clientInput": "",
+  "clientInputFiles": [],
+  "userFilesSizeBytes": 0,
+  "lastUsedModel": {
+    "identifier": "qwen/qwen3-8b",
+    "indexedModelIdentifier": "qwen/qwen3-8b",
+    "instanceLoadTimeConfig": {
+      "fields": []
+    },
+    "instanceOperationTimeConfig": {
+      "fields": []
+    }
+  },
+  "notes": [],
+  "plugins": [
+    "mcp/wazuh"
+  ],
+  "pluginConfigs": {},
+  "disabledPluginTools": [],
+  "looseFiles": [],
+  "assistantLastMessagedAt": 1768467256815
+}
